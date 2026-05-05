@@ -26,9 +26,3 @@ jobs:
         run: |
           PYTHON_VERSION=$(echo "${{ matrix.python-version }}" | tr -d '.')
           uv run tox -f py${PYTHON_VERSION}
-      - name: "Upload coverage to Codecov"
-        uses: "codecov/codecov-action@v4"
-        if: ${{ github.repository_owner == 'moccu' }}
-        with:
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
