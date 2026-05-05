@@ -1,0 +1,69 @@
+[project]
+name = "django-markdown-middleware"
+version = "0.1.0"
+description = "A Django middleware for rendering Markdown responses."
+authors = [
+    {name = "Moccu GmbH & Co. KG"},
+]
+license = {text = "MIT"}
+readme = "README.rst"
+requires-python = ">=3.11"
+dependencies = [
+    "Django>=5.2",
+    "html-to-markdown>=1.0",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Intended Audience :: Developers",
+    "Operating System :: Unix",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+Homepage = "https://github.com/moccu/django-markdown-middleware"
+Repository = "https://github.com/moccu/django-markdown-middleware"
+
+[tool.hatch.build.targets.wheel]
+packages = ["markdown_middleware"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0",
+    "pytest-cov>=7.0",
+    "pytest-django>=4.12",
+    "ruff>=0.15",
+    "coverage[toml]>=7.0",
+    "tox>=4.0",
+    "tox-uv>=1.0",
+]
+docs = [
+    "sphinx>=9.0",
+]
+
+
+[tool.pytest.ini_options]
+addopts = "-v --tb=short --nomigrations"
+testpaths = ["markdown_middleware", "tests"]
+DJANGO_SETTINGS_MODULE = "tests.settings"
+
+[tool.ruff]
+line-length = 96
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.coverage.run]
+branch = true
+source = ["markdown_middleware"]
+omit = ["*/__init__.py"]
+
+[tool.coverage.report]
+exclude_lines = ["raise NotImplementedError"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
