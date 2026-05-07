@@ -12,7 +12,7 @@ docs:
 	uv run --group docs $(MAKE) -C docs html
 
 tests:
-	uv run tox
+	uv run python -m tox
 
 coverage-html:
 	uv run python -m pytest --cov=markdown_middleware --cov-report=html

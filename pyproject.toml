@@ -1,6 +1,6 @@
 [project]
 name = "django-markdown-middleware"
-version = "0.1.0"
+version = "0.2.0"
 description = "A Django middleware for rendering Markdown responses."
 authors = [
     {name = "Moccu GmbH & Co. KG"},

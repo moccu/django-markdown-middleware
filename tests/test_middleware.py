@@ -256,3 +256,43 @@ class TestMarkdownMiddleware:
     def test_invalidate_cache_on_unknown_path_is_safe(self):
         # Should not raise even if the path was never cached
         invalidate_cache("/never/cached/")
+
+    def test_convert_options_strip_inline_svg(self, rf, settings):
+        settings.MARKDOWN_MIDDLEWARE_CONVERT_OPTIONS = {"strip_tags": ["svg"]}
+        html = (
+            "<html><body>"
+            "<p>Before</p>"
+            '<svg xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40"/></svg>'
+            "<p>After</p>"
+            "</body></html>"
+        )
+        middleware = MarkdownMiddleware(lambda r: make_html_response(html))
+        response = middleware(rf.get("/", HTTP_ACCEPT="text/markdown"))
+        content = response.content.decode("utf-8")
+        assert "Before" in content
+        assert "After" in content
+        assert "svg" not in content
+        assert "circle" not in content
+        assert "data:image/svg+xml" not in content
+
+    def test_convert_options_exclude_inline_images_keeps_linked(self, rf, settings):
+        settings.MARKDOWN_MIDDLEWARE_CONVERT_OPTIONS = {
+            "exclude_selectors": ['img[src^="data:"]']
+        }
+        html = (
+            "<html><body>"
+            '<img src="https://example.com/image.png" alt="linked"/>'
+            '<img src="data:image/png;base64,abc123" alt="inline"/>'
+            "</body></html>"
+        )
+        middleware = MarkdownMiddleware(lambda r: make_html_response(html))
+        response = middleware(rf.get("/", HTTP_ACCEPT="text/markdown"))
+        content = response.content.decode("utf-8")
+        assert "https://example.com/image.png" in content
+        assert "data:image/png;base64" not in content
+
+    def test_convert_options_default_preserves_existing_behaviour(self, rf):
+        middleware = make_middleware()
+        response = middleware(rf.get("/", HTTP_ACCEPT="text/markdown"))
+        assert response.status_code == 200
+        assert "text/markdown" in response["Content-Type"]

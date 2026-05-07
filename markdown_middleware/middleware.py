@@ -3,7 +3,14 @@ import uuid
 
 from django.conf import settings
 from django.core.cache import cache
-from html_to_markdown import convert
+from html_to_markdown import ConversionOptions
+
+# The public html_to_markdown.convert passes ConversionOptions through a broken
+# Python wrapper that maps enum values via str(), producing e.g. "HeadingStyle.Atx"
+# instead of the expected "atx", causing a KeyError whenever options are passed.
+# We call the underlying Rust function directly to work around this.
+# See: https://github.com/kreuzberg-dev/html-to-markdown/issues/324
+from html_to_markdown._html_to_markdown import convert as _convert
 
 CACHE_KEY_PREFIX = "markdown_middleware"
 
@@ -91,7 +98,9 @@ class MarkdownMiddleware:
             return response
 
         html = response.content.decode(response.charset or "utf-8")
-        result = convert(html)
+        convert_options = getattr(settings, "MARKDOWN_MIDDLEWARE_CONVERT_OPTIONS", None)
+        options = ConversionOptions(**convert_options) if convert_options else None
+        result = _convert(html, options, None)
         markdown = result.content
 
         # To calculate the number of tokens needed for Markdown,

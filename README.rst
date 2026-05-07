@@ -93,6 +93,53 @@ This is useful in post-save signals or management commands when content
 changes and the cached Markdown must be refreshed.
 
 
+Configuration
+-------------
+
+Set ``MARKDOWN_MIDDLEWARE_ANONYMOUS_ONLY`` to ``False`` to also convert
+responses for authenticated users (defaults to ``True``):
+
+.. code-block:: python
+
+    MARKDOWN_MIDDLEWARE_ANONYMOUS_ONLY = False
+
+Set ``MARKDOWN_MIDDLEWARE_CACHE_TIMEOUT`` to the desired cache duration in
+seconds for converted Markdown responses. When absent or ``None`` (the
+default), no caching is performed:
+
+.. code-block:: python
+
+    MARKDOWN_MIDDLEWARE_CACHE_TIMEOUT = 300
+
+Set ``MARKDOWN_MIDDLEWARE_CONVERT_OPTIONS`` to a dictionary of keyword
+arguments passed directly to ``html-to-markdown``'s ``ConversionOptions``.
+When absent or ``None`` (the default), the library's defaults are used.
+
+Remove inline SVG elements:
+
+.. code-block:: python
+
+    MARKDOWN_MIDDLEWARE_CONVERT_OPTIONS = {"strip_tags": ["svg"]}
+
+Remove inline (data URI) images while keeping linked images:
+
+.. code-block:: python
+
+    MARKDOWN_MIDDLEWARE_CONVERT_OPTIONS = {"exclude_selectors": ['img[src^="data:"]']}
+
+Both options combined:
+
+.. code-block:: python
+
+    MARKDOWN_MIDDLEWARE_CONVERT_OPTIONS = {
+        "strip_tags": ["svg"],
+        "exclude_selectors": ['img[src^="data:"]'],
+    }
+
+See the `html-to-markdown documentation <https://docs.html-to-markdown.kreuzberg.dev/>`_
+for the full list of available options.
+
+
 Prepare for development
 -----------------------
 
